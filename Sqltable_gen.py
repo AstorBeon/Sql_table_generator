@@ -1,4 +1,5 @@
 import random
+import sys
 
 
 class Sql_table_generator:
@@ -20,18 +21,9 @@ class Sql_table_generator:
         :param list_of_types:  list of strings, containing types of columns to be created
         :return:
         """
-        self.tablename = tablename
-        tablecode = f"CREATE TABLE {tablename}("
-        if len(list_of_colnames) != len(list_of_types):
-            raise Exception("List of column names has different length than list of types!")
 
-        for i in range(len(list_of_colnames)):
-            tablecode += f"{list_of_colnames[i]} {list_of_types[i]}, "
+        self.result = f"CREATE TABLE {tablename}(\n" + "".join([f"{list_of_colnames[i]} {list_of_types[i]},\n" for i in range(len(list_of_colnames))])[:-2] + "\n);\n" if len(list_of_types) == len(list_of_colnames) else sys.exit("Columns and types lists have unequal lengths")
 
-        # deleting last comma
-        tablecode = tablecode[:-2] + " );"
-        self.result += tablecode
-        # list of lists
 
     def create_inserts(self, values: [[]], amount: int = -1, shuffle=False) -> None:
         """
@@ -59,6 +51,8 @@ class Sql_table_generator:
             for d in values:
                 random.shuffle(d)
 
+
+        #generating inserts
         for i in range(amount):
             inserts += f"INSERT INTO {self.tablename}, VALUES( "
             for val in values:
@@ -79,3 +73,10 @@ class Sql_table_generator:
 
         with open(newpath, "w") as target:
             target.write(self.result)
+
+
+
+generator = Sql_table_generator()
+generator.create_table("People",["Name","Surname", "Email"],["varchar(255)","varchar(255)","varchar(255)"])
+# generator.create_inserts(values=[["Mike","Ike","Like"],["Wazowski","Losco","Tump"],["b@a.com","lol@goal","biz@email.gov.com"]],shuffle=True,amount=3)
+# generator.save(path="")
